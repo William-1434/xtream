@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Xtream Playlist Viewer</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #eee;
+    margin: 0;
+}
+header {
+    padding: 10px;
+    background: #1e1e1e;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+input, select, button {
+    padding: 6px;
+    font-size: 14px;
+}
+button {
+    cursor: pointer;
+}
+#status {
+    padding: 8px;
+    font-size: 13px;
+    background: #222;
+}
+#list {
+    padding: 10px;
+}
+.item {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+}
+.url {
+    font-family: monospace;
+    font-size: 12px;
+    color: #7ecfff;
+    word-break: break-all;
+    margin-top: 4px;
+}
+.actions {
+    margin-top: 6px;
+    display: flex;
+    gap: 6px;
+}
+</style>
+</head>
+<body>
+
+<header>
+    <input id="host" placeholder="http://server:port">
+    <input id="user" placeholder="Username">
+    <input id="pass" placeholder="Password" type="password">
+    <select id="type">
+        <option value="live">Live</option>
+        <option value="vod">VOD</option>
+        <option value="series">Series</option>
+    </select>
+    <button onclick="loadXtream()">Load</button>
+    <input id="search" placeholder="Search..." oninput="render()">
+</header>
+
+<div id="status">Idle</div>
+<div id="list"></div>
+
+<script>
+let items = [];
+
+function setStatus(msg, color = "#7ecfff") {
+    const s = document.getElementById("status");
+    s.textContent = msg;
+    s.style.color = color;
+}
+
+async function loadXtream() {
+    const host = document.getElementById("host").value.trim();
+    const user = document.getElementById("user").value.trim();
+    const pass = document.getElementById("pass").value.trim();
+    const type = document.getElementById("type").value;
+
+    if (!host || !user || !pass) {
+        setStatus("Missing details", "#ff5252");
+        return;
+    }
+
+    const actionMap = {
+        live: "get_live_streams",
+        vod: "get_vod_streams",
+        series: "get_series"
+    };
+
+    setStatus("Loading…");
+
+    try {
+        const r = await fetch(
+            `/api/xtream?host=${encodeURIComponent(host)}` +
+            `&user=${encodeURIComponent(user)}` +
+            `&pass=${encodeURIComponent(pass)}` +
+            `&action=${actionMap[type]}`
+        );
+
+        if (!r.ok) throw new Error("API error");
+
+        items = await r.json();
+        setStatus(`Loaded ${items.length} items`);
+        render();
+    } catch (e) {
+        console.error(e);
+        setStatus("Failed to load Xtream", "#ff5252");
+    }
+}
+
+function render() {
+    const list = document.getElementById("list");
+    const q = document.getElementById("search").value.toLowerCase();
+    const host = document.getElementById("host").value.trim();
+    const user = document.getElementById("user").value.trim();
+    const pass = document.getElementById("pass").value.trim();
+    const type = document.getElementById("type").value;
+
+    list.innerHTML = "";
+
+    items
+        .filter(i => i.name?.toLowerCase().includes(q))
+        .forEach(i => {
+            const ext = type === "live" ? "m3u8" : "mp4";
+            const url = `${host}/${type}/${user}/${pass}/${i.stream_id}.${ext}`;
+
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `
+                <strong>${i.name}</strong>
+                <div class="url">${url}</div>
+                <div class="actions">
+                    <button class="copy">Copy URL</button>
+                </div>
+            `;
+
+            div.querySelector(".copy").onclick = () =>
+                navigator.clipboard.writeText(url);
+
+            list.appendChild(div);
+        });
+}
+</script>
+
+</body>
+</html>
