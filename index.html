@@ -203,7 +203,7 @@ function groupItems(categories,items){
    ...item,
    name:item.name||"Unnamed",
    streamId:item.stream_id||item.series_id||"",
-   extension:item.container_extension||"mp4",
+   extension:item.container_extension||"ts",
    logo:item.stream_icon||item.cover||""
   });
  });
@@ -391,7 +391,7 @@ function renderEpisodes(series,result){
    row.innerHTML=`
    <div class="channel-row">
     <div style="flex:1"><strong>S${String(season).padStart(2,"0")} E${String(ep.episode_num||"").padStart(2,"0")} - ${escapeHtml(ep.title||"Episode")}</strong>
-     <div class="small">${ep.info?.plot?escapeHtml(ep.info.plot)+"<br>":""}Format: .${escapeHtml(ep.container_extension||"mp4")}</div>
+     <div class="small">${ep.info?.plot?escapeHtml(ep.info.plot)+"<br>":""}Format: .${escapeHtml(ep.container_extension||"ts")}</div>
     </div>
     <div class="channel-actions"><button class="copyBtn">Copy URL</button><button class="m3uBtn">Download .M3U</button></div>
    </div>`;
