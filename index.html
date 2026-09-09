@@ -386,7 +386,7 @@ function renderEpisodes(series,result){
    found=true;
    const row=document.createElement("div");
    row.className="channel";
-   const url=getSeriesUrl(ep.id||"",ep.container_extension||"mp4");
+   const url=getSeriesUrl(ep.id||"",ep.container_extension||"ts");
 
    row.innerHTML=`
    <div class="channel-row">
@@ -420,7 +420,7 @@ function getStreamUrl(ch){
 function getSeriesUrl(id,ext){
  const d=getXtreamDetails();
  if(!id)return "";
- return `${d.server}/series/${encodeURIComponent(d.username)}/${encodeURIComponent(d.password)}/${id}.${ext||"mp4"}`;
+ return `${d.server}/series/${encodeURIComponent(d.username)}/${encodeURIComponent(d.password)}/${id}.${ext||"ts"}`;
 }
 
 function searchContent(){
