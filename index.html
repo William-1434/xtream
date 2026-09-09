@@ -408,7 +408,7 @@ function renderEpisodes(series,result){
 function getStreamUrl(ch){
  const d=getXtreamDetails();
  if(!ch.streamId)return "";
- const ext=ch.extension||"mp4";
+ const ext=ch.extension||"ts";
 
  if(currentSection==="live")
   return `${d.server}/live/${encodeURIComponent(d.username)}/${encodeURIComponent(d.password)}/${ch.streamId}.${ext}`;
